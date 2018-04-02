@@ -3,8 +3,8 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 
-def erode(mask):
-    return cv2.erode(mask, np.ones((2,2),np.uint8), iterations=1)
+def erode(mask, power=2):
+    return cv2.erode(mask, np.ones((power,power),np.uint8), iterations=1)
 
 def get_boundary(img, boundary=0.001, dist_transform=5):
     #gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -65,3 +65,8 @@ def transform_masks(transform,
                 transformed = transform(mask)
                 cv2.imwrite(os.path.join(sample_path, transform_name, mask_id), transformed)
         
+
+
+
+
+
