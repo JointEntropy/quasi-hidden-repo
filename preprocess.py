@@ -33,14 +33,13 @@ def get_boundary(img, boundary=0.001, dist_transform=5):
     return mask
 
 def prepare_borders(dpath='data/stage1_train', **get_boundary_args):
-    for i, sample_dir in enumerate(os.listdir(dpath)):
-        for sample in tqdm(os.path.join(dpath, sample_dir)):
-            os.makedirs(os.path.join(dpath, sample, 'borders'), exist_ok=True)
-            border = None
-            for mask_id in os.listdir(os.path.join(dpath, sample, 'masks')):
-                img = cv2.imread(os.path.join(dpath,sample,'masks',mask_id))
-                border_tmp =  get_boundary(img, **get_boundary_args)
-                border =  border_tmp+ border if border is not None else border_tmp 
-                #border = cv2.erode(img,None,iterations = 2)
-                cv2.imwrite(os.path.join(dpath, sample, 'borders', mask_id), border_tmp)
-            cv2.imwrite(os.path.join(dpath, sample, 'border.png'), border)
+    for i, sample_dir in enumerate(tqdm(os.listdir(dpath))):
+        os.makedirs(os.path.join(dpath, sample_dir, 'borders'), exist_ok=True)
+        border = None
+        for mask_id in os.listdir(os.path.join(dpath, sample_dir, 'masks')):
+            img = cv2.imread(os.path.join(dpath,sample_dir,'masks',mask_id))
+            border_tmp =  get_boundary(img, **get_boundary_args)
+            border =  border_tmp+ border if border is not None else border_tmp 
+            #border = cv2.erode(img,None,iterations = 2)
+            cv2.imwrite(os.path.join(dpath, sample_dir, 'borders', mask_id), border_tmp)
+        cv2.imwrite(os.path.join(dpath, sample_dir, 'border.png'), border)
