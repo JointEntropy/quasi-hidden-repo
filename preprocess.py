@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2
 from tqdm import tqdm
+from scipy.ndimage import distance_transform
 
 def erode(mask, kernel_size=2, iters=1):
     return cv2.erode(mask, np.ones((kernel_size, kernel_size),np.uint8), iterations=iters)
@@ -10,6 +11,24 @@ def polish(mask, kernel_size=3, iters=1):
     return cv2.morphologyEx(mask,cv2.MORPH_OPEN,
                     kernel=np.ones((kernel_size,kernel_size)), 
                     iterations=iters) 
+
+def distance_watershed(mask, distance=None, kernel_size=3, debug=False):
+    """
+    Input - one channel boolean mask with binary segmentation.
+    Watershed with distances.
+    """
+    assert len(mask.shape)==2
+    assert mask.dtype==np.bool
+    
+    if not distance:
+        distance = ndi.distance_transform_edt(mask)
+    if debug:
+        plt.imshow(distance)
+    local_maxi = peak_local_max(distance, indices=False, footprint=np.ones((kernel_size, kernel_size)),
+                                labels=mask)
+    markers = ndi.label(local_maxi)[0]
+    labels = watershed(-distance, markers, mask=mask)
+    return labels
 
 def get_boundary(img, boundary=0.001, dist_transform=5):
     #gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
