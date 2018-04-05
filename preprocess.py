@@ -97,16 +97,16 @@ if __name__ == '__main__':
     dir_ = transform_masks(transform=(lambda x: distance_transform_edt(x[:,:,0])), 
                        transform_name='distance',
                        debug=True)
-	plt.subplots(1,2, figsize=(15,5))
-	# On aggregated mask
-	k = plt.imread(os.path.join(dir_,'dummy.png'))[:,:,0]
-	k = distance_transform_edt(k)
-	plt.subplot(1,2,1)
-	plt.imshow(k)
+    plt.subplots(1,2, figsize=(15,5))
+    # On aggregated mask
+    k = plt.imread(os.path.join(dir_,'dummy.png'))[:,:,0]
+    k = distance_transform_edt(k)
+    plt.subplot(1,2,1)
+    plt.imshow(k)
 
-	# One single masks
-	plt.subplot(1,2,2)
-	plt.imshow(plt.imread(dir_+'/distance.png'))
+    # One single masks
+    plt.subplot(1,2,2)
+    plt.imshow(plt.imread(dir_+'/distance.png'))
 
 
 
