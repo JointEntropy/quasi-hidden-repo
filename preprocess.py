@@ -3,8 +3,13 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 
-def erode(mask, power=2):
-    return cv2.erode(mask, np.ones((power,power),np.uint8), iterations=1)
+def erode(mask, kernel_size=2, iters=1):
+    return cv2.erode(mask, np.ones((kernel_size, kernel_size),np.uint8), iterations=iters)
+
+def polish(mask, kernel_size=3, iters=1):
+    return cv2.morphologyEx(mask,cv2.MORPH_OPEN,
+                    kernel=np.ones((kernel_size,kernel_size)), 
+                    iterations=iters) 
 
 def get_boundary(img, boundary=0.001, dist_transform=5):
     #gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -28,13 +33,12 @@ def get_boundary(img, boundary=0.001, dist_transform=5):
     # step 3
     markers = markers+1
     markers[unknown==255] = 0
-    mask = np.zeros_like(img)
+    border = np.zeros_like(img)
     markers = cv2.watershed(img,markers)
-    mask[markers == -1] = [255,255,255]
+    border[markers == -1] = [255,255,255]
 
-    cv2.rectangle(mask,(0,0),(mask.shape[1], mask.shape[0]),(0,0,0),2)
+    cv2.rectangle(border,(0,0),(border.shape[1],border.shape[0]),(0,0,0),2)
     return mask
-
 
 
 def transform_masks(transform, 
