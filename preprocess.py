@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 from tqdm import tqdm
-from scipy.ndimage import distance_transform
+from scipy.ndimage import distance_transform_edt
 
 def erode(mask, kernel_size=2, iters=1):
     return cv2.erode(mask, np.ones((kernel_size, kernel_size),np.uint8), iterations=iters)
@@ -63,11 +63,13 @@ def get_boundary(img, boundary=0.001, dist_transform=5):
 def transform_masks(transform, 
                     dpath='data/stage1_train', 
                     aggregate=True, 
-                    transform_name='eroded'):
+                    transform_name='eroded',
+                    debug=False):
     '''
     For each sample in dpath apply transform for each  mask of that sample and save in 
     contigious dir called by transform name.
     Optionally aggregate all results in one image.
+    In debug mode do transform on one sample and return path.
     '''
     for sample_dir in tqdm(os.listdir(dpath)):
         sample_path = os.path.join(dpath, sample_dir)
@@ -82,14 +84,29 @@ def transform_masks(transform,
                 cv2.imwrite(os.path.join(sample_path, transform_name, mask_id), transformed)
             aggregated = np.minimum(aggregated,255)
             cv2.imwrite(os.path.join(sample_path, transform_name+'.png'), aggregated)
+            #plt.imshow(aggregated)
         else:
             for mask_id in os.listdir(os.path.join(sample_path, 'masks')):
                 mask = cv2.imread(os.path.join(sample_path,'masks',mask_id))
                 transformed = transform(mask)
                 cv2.imwrite(os.path.join(sample_path, transform_name, mask_id), transformed)
-        
+        if debug:
+            return os.path.join(dpath, sample_dir)        
 
+if __name__ == '__main__':
+    dir_ = transform_masks(transform=(lambda x: distance_transform_edt(x[:,:,0])), 
+                       transform_name='distance',
+                       debug=True)
+	plt.subplots(1,2, figsize=(15,5))
+	# On aggregated mask
+	k = plt.imread(os.path.join(dir_,'dummy.png'))[:,:,0]
+	k = distance_transform_edt(k)
+	plt.subplot(1,2,1)
+	plt.imshow(k)
 
+	# One single masks
+	plt.subplot(1,2,2)
+	plt.imshow(plt.imread(dir_+'/distance.png'))
 
 
 
